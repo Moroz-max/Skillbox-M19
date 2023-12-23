@@ -12,6 +12,7 @@ class ViewController: UIViewController {
     
     let searchCellID = "searchCell"
 
+    var isSearch = true
     var filmsArray = [Films]()
     
     private lazy var searchTextField: UITextField = {
@@ -37,6 +38,7 @@ class ViewController: UIViewController {
         button.tintColor = .white
         button.backgroundColor = .systemBlue
         button.layer.cornerRadius = 8
+        button.addTarget(self, action: #selector(popularFilmsPressed), for: .touchUpInside)
         return button
     }()
     
@@ -91,6 +93,17 @@ class ViewController: UIViewController {
     private func search(keyword: String) {
         Service().loadFilmsByKeyword(requestText: keyword) { result in
             self.filmsArray = result
+            self.isSearch = true
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }
+    }
+    
+    private func topFilms() {
+        Service().loadPopularFilms { result in
+            self.filmsArray = result
+            self.isSearch = false
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
@@ -99,6 +112,10 @@ class ViewController: UIViewController {
     
     @objc func searchButtonPresed() {
         search(keyword: searchTextField.text ?? "")
+    }
+    
+    @objc func popularFilmsPressed() {
+        topFilms()
     }
 
 }
@@ -118,7 +135,12 @@ extension ViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return "Результаты по запросу: \(searchTextField.text ?? "")"
+        if isSearch {
+            return "Результаты по запросу: \(searchTextField.text ?? "")"
+        } else {
+            return "Популярные фильмы"
+        }
+        
     }
 }
 
