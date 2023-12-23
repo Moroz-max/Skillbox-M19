@@ -24,16 +24,32 @@ class SearchTableViewCell: UITableViewCell {
         return label
     }()
     
+    private lazy var activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.startAnimating()
+        return indicator
+    }()
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         contentView.addSubview(filmImageView)
         contentView.addSubview(filmLabel)
+        contentView.addSubview(activityIndicator)
         setupConstraints()
     }
     
-//    func configure(_ model: model) {
-//           
-//    }
+    func configure(_ model: Films) {
+        filmLabel.text = model.nameRu
+        let url = URL(string: model.posterUrl)
+
+        DispatchQueue.global().async {
+            let data = try? Data(contentsOf: url!) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
+            DispatchQueue.main.async {
+                self.filmImageView.image = UIImage(data: data!)
+                self.activityIndicator.stopAnimating()
+            }
+        }
+    }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -51,6 +67,9 @@ class SearchTableViewCell: UITableViewCell {
             make.left.equalTo(filmImageView.snp.right).offset(20)
             make.centerY.equalTo(filmImageView.snp.centerY)
             make.right.equalTo(contentView.snp.right)
+        }
+        activityIndicator.snp.makeConstraints { make in
+            make.center.equalTo(filmImageView.snp.center)
         }
     }
     

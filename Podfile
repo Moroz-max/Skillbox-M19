@@ -7,5 +7,4 @@ target 'Skillbox-M19' do
 
   # Pods for Skillbox-M19
 pod 'SnapKit'
-pod 'Alamofire'
 end
