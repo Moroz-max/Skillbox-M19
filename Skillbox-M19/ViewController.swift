@@ -6,14 +6,106 @@
 //
 
 import UIKit
+import SnapKit
 
 class ViewController: UIViewController {
+    
+    let searchCellID = "searchCell"
 
+    private lazy var searchTextField: UITextField = {
+        let textField = UITextField()
+        textField.placeholder = "Введите запрос"
+        textField.borderStyle = .roundedRect
+        return textField
+    }()
+    
+    private lazy var searchButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Поиск", for: .normal)
+        button.tintColor = .white
+        button.backgroundColor = .systemBlue
+        button.layer.cornerRadius = 8
+        return button
+    }()
+    
+    private lazy var popularFilmsButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Популярные фильмы", for: .normal)
+        button.tintColor = .white
+        button.backgroundColor = .systemBlue
+        button.layer.cornerRadius = 8
+        return button
+    }()
+    
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView(frame: CGRect.zero, style: .plain)
+        tableView.register(SearchTableViewCell.self, forCellReuseIdentifier: searchCellID)
+        return tableView
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
+        setupViews()
+        setupConstraints()
+        tableView.dataSource = self
+        tableView.delegate = self
+    }
+    
+    private func setupViews() {
+        view.addSubview(searchTextField)
+        view.addSubview(searchButton)
+        view.addSubview(popularFilmsButton)
+        view.addSubview(tableView)
     }
 
+    private func setupConstraints() {
+        searchTextField.snp.makeConstraints { make in
+            make.left.equalTo(view.snp.leftMargin).offset(20)
+            make.top.equalTo(view.snp.topMargin).offset(20)
+            make.right.equalTo(view.snp.rightMargin).offset(-20)
+        }
+        searchButton.snp.makeConstraints { make in
+            make.width.equalTo(80)
+            make.height.equalTo(40)
+            make.top.equalTo(searchTextField.snp.bottom).offset(20)
+            make.centerX.equalTo(searchTextField.snp.centerX)
+        }
+        popularFilmsButton.snp.makeConstraints { make in
+            make.width.equalTo(220)
+            make.height.equalTo(40)
+            make.centerX.equalTo(searchButton.snp.centerX)
+            make.top.equalTo(searchButton.snp.bottom).offset(20)
+        }
+        tableView.snp.makeConstraints { make in
+            make.top.equalTo(popularFilmsButton.snp.bottom).offset(20)
+            make.left.equalTo(view.snp.left)
+            make.right.equalTo(view.snp.right)
+            make.bottom.equalTo(view.snp.bottom)
+        }
+    }
 
 }
 
+
+extension ViewController: UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: searchCellID, for: indexPath) as? SearchTableViewCell
+        
+        return cell ?? UITableViewCell()
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return "Результаты по запросу:"
+    }
+}
+
+extension ViewController: UITableViewDelegate {
+    
+}
