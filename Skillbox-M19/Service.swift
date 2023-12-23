@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Alamofire
 
 struct Service {
     func loadFilmsByKeyword(requestText: String, completion: @escaping (_ result: [Films]) -> ()) {

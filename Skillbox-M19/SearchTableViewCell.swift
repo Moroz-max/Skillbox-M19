@@ -41,9 +41,8 @@ class SearchTableViewCell: UITableViewCell {
     func configure(_ model: Films) {
         filmLabel.text = model.nameRu
         let url = URL(string: model.posterUrl)
-
         DispatchQueue.global().async {
-            let data = try? Data(contentsOf: url!) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
+            let data = try? Data(contentsOf: url!)
             DispatchQueue.main.async {
                 self.filmImageView.image = UIImage(data: data!)
                 self.activityIndicator.stopAnimating()
