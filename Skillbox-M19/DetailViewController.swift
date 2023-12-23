@@ -63,11 +63,11 @@ class DetailViewController: UIViewController {
         return label
     }()
     
-    private lazy var filmDescriptionLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 0
-        label.text = "TEST DESCRIPTION TEST DESCRIPTION TEST DESCRIPTION TEST DESCRIPTION TEST DESCRIPTION TEST DESCRIPTION TEST DESCRIPTION TEST DESCRIPTION TEST DESCRIPTION TEST DESCRIPTION TEST DESCRIPTION "
-        return label
+    private lazy var filmDescriptionTextView: UITextView = {
+        let textView = UITextView()
+        textView.font = .systemFont(ofSize: 14)
+        textView.text = ""
+        return textView
     }()
     
     private lazy var releaseDateLabel: UILabel = {
@@ -96,6 +96,12 @@ class DetailViewController: UIViewController {
         return label
     }()
     
+    private lazy var activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.startAnimating()
+        return indicator
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -111,11 +117,12 @@ class DetailViewController: UIViewController {
         view.addSubview(IMDBRating)
         view.addSubview(filmRUTitleLabel)
         view.addSubview(filmENTitleLabel)
-        view.addSubview(filmDescriptionLabel)
+        view.addSubview(filmDescriptionTextView)
         view.addSubview(releaseDateLabel)
         view.addSubview(yearLabel)
         view.addSubview(durationTitleLabel)
         view.addSubview(durationTimeLabel)
+        view.addSubview(activityIndicator)
     }
     
     private func setupConstraints() {
@@ -161,32 +168,65 @@ class DetailViewController: UIViewController {
             make.top.equalTo(filmRUTitleLabel.snp.bottom).offset(10)
             make.height.equalTo(30)
         }
-        filmDescriptionLabel.snp.makeConstraints { make in
+        filmDescriptionTextView.snp.makeConstraints { make in
             make.top.equalTo(filmENTitleLabel.snp.bottom).offset(20)
             make.left.equalTo(view.snp.leftMargin)
             make.right.equalTo(view.snp.rightMargin)
+            make.bottom.equalTo(releaseDateLabel.snp.top).offset(-10)
         }
         releaseDateLabel.snp.makeConstraints { make in
-            make.top.equalTo(filmDescriptionLabel.snp.bottom).offset(20)
+            make.top.equalTo(filmDescriptionTextView.snp.bottom).offset(20)
             make.left.equalTo(view.snp.leftMargin)
             make.right.equalTo(view.snp.rightMargin)
+            make.bottom.equalTo(yearLabel.snp.top).offset(-10)
         }
         yearLabel.snp.makeConstraints { make in
             make.top.equalTo(releaseDateLabel.snp.bottom).offset(10)
             make.left.equalTo(view.snp.leftMargin)
             make.right.equalTo(view.snp.rightMargin)
+            make.bottom.equalTo(durationTitleLabel.snp.top).offset(-10)
         }
         durationTitleLabel.snp.makeConstraints { make in
             make.top.equalTo(yearLabel.snp.bottom).offset(20)
             make.left.equalTo(view.snp.leftMargin)
             make.right.equalTo(view.snp.rightMargin)
+            make.bottom.equalTo(durationTimeLabel.snp.top).offset(-10)
         }
         durationTimeLabel.snp.makeConstraints { make in
             make.top.equalTo(durationTitleLabel.snp.bottom).offset(10)
             make.left.equalTo(view.snp.leftMargin)
             make.right.equalTo(view.snp.rightMargin)
+            make.bottom.equalTo(view.snp.bottomMargin).offset(-20)
         }
-        
+        activityIndicator.snp.makeConstraints { make in
+            make.center.equalTo(filmImageView.snp.center)
+        }
+    }
+    func loadFilmData(id: Int) {
+        Service().loadDetailFilm(filmId: id) { result in
+            self.configure(model: result)
+        }
+    }
+    
+    private func configure(model: DetailFilms) {
+        if let url = URL(string: model.posterUrl) {
+            DispatchQueue.global().async {
+                let data = try? Data(contentsOf: url)
+                DispatchQueue.main.async {
+                    self.filmImageView.image = UIImage(data: data!)
+                    self.activityIndicator.stopAnimating()
+                }
+            }
+        }
+        DispatchQueue.main.async {
+            self.kinopoiskRating.text = "\(model.ratingKinopoisk)"
+            self.IMDBRating.text = "\(model.ratingImdb)"
+            self.filmRUTitleLabel.text = model.nameRu
+            self.filmENTitleLabel.text = model.nameOriginal
+            self.filmDescriptionTextView.text = model.description
+            self.yearLabel.text = "\(model.year)"
+            self.durationTimeLabel.text = "\(model.filmLength) мин."
+        }
         
     }
     

@@ -147,6 +147,11 @@ extension ViewController: UITableViewDataSource {
 extension ViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
+        let nextViewController = storyBoard.instantiateViewController(withIdentifier: "DetailVC") as! DetailViewController
+        nextViewController.title = "О фильме"
+        nextViewController.loadFilmData(id: filmsArray[indexPath.row].filmId)
+        self.present(nextViewController, animated: true)
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
